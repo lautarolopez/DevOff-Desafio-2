@@ -1,6 +1,6 @@
 import { Response, Request, Body } from "https://deno.land/x/oak/mod.ts";
 
-const transpileMatrix = (
+const transpoleMatrix = (
   message: string,
   width: number,
   height: number
@@ -12,25 +12,17 @@ const transpileMatrix = (
   for (let i = 0; i < height; i++) {
     matrix[i] = [];
     for (let x = 0; x < width; x++) {
-      if (stringCount < message.length) {
-        matrix[i][x] = message[stringCount];
-        stringCount++;
-      } else {
-        matrix[i][x] = " ";
-      }
+      matrix[i][x] = message[stringCount] || " ";
+      stringCount++;
     }
   }
 
   let messageToReturn = "";
 
-  // Reading the message from the matrix in oppossite order
-  for (let x = 0; x < width; x++) {
-    for (let i = 0; i < height; i++) {
-      if (matrix[i][x]) {
-        messageToReturn += matrix[i][x];
-      }
-    }
-  }
+  // Building the string to return from transpoling the matrix
+  matrix[0].map((col, c) =>
+    matrix.map((row, r) => (messageToReturn += matrix[r][c]))
+  );
 
   return messageToReturn;
 };
@@ -45,7 +37,7 @@ export const encode = async ({
   const body = request.body({ type: "json" });
   const { vueltas, mensaje } = await body.value;
   const height = Math.ceil(mensaje.length / vueltas);
-  const codedMessage = transpileMatrix(mensaje, vueltas, height);
+  const codedMessage = transpoleMatrix(mensaje, vueltas, height);
   response.body = {
     mensaje: codedMessage,
   };
@@ -62,7 +54,7 @@ export const decode = async ({
   const body = request.body({ type: "json" });
   const { vueltas, mensaje } = await body.value;
   const height = Math.ceil(mensaje.length / vueltas);
-  const decodedMessage = transpileMatrix(mensaje, height, vueltas);
+  const decodedMessage = transpoleMatrix(mensaje, height, vueltas);
 
   response.body = {
     mensaje: decodedMessage,
